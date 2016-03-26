@@ -1,0 +1,3 @@
+LIBRARY MouseHook
+EXPORTS
+	LowLevelMouseProc @1
