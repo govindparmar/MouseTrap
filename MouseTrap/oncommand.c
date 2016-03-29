@@ -9,7 +9,7 @@
 //  uNotify is unused by this handler.
 //
 // REMARKS:
-// This handler may benefit from being broken down further due to its excessive length.
+//  This handler may benefit from being broken down further due to its excessive length.
 
 VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 {
