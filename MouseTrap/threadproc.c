@@ -15,7 +15,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
 	MIFILEHDR mifh;
 	MOUSEINFO *miList = NULL;
 	DWORD dwRead = 0;
-	ATOM aFlag = 0x000;
+	ATOM aFlag = 0x0000;
 	int i, n = 0;
 
 	hWnd = FindWindow(g_szClassName, NULL);
