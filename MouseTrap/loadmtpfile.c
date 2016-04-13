@@ -2,7 +2,7 @@
 
 MOUSEINFO *g_miFromFile = NULL;
 
-// Loads the raw click data from %apppath\mousetrap\clickdata.tmp into a structured save file.
+// Loads the raw click data from %apppath%\mousetrap\clickdata.tmp into a structured save file.
 //
 // PARAMETERS:
 //  inFileName is the path to the input file (wide character string)
