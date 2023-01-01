@@ -8,7 +8,7 @@
 // TRUE to continue processing child windows in the app (if the callback function ever returns FALSE, enumeration stops).
 BOOL CALLBACK EnumChildProc(HWND hWnd, LPARAM lParam)
 {
-	HFONT hfDefault = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-	SendMessage(hWnd, WM_SETFONT, (WPARAM)hfDefault, 0L);
+	HFONT hfDefault = *(HFONT *) lParam;
+	SendMessageW(hWnd, WM_SETFONT, (WPARAM)hfDefault, 0L);
 	return TRUE;
 }

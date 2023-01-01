@@ -23,7 +23,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="winmain.c">
+    <ClCompile Include="wwinmain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="windowproc.c">

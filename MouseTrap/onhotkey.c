@@ -17,10 +17,10 @@ VOID WINAPI OnHotkey(HWND hWnd, INT nID, UINT nModify, UINT vKey)
 		if (g_bCurrentlyRecording)
 		{
 			HWND hStop;
-			hStop = FindWindowEx(hWnd, NULL, L"BUTTON", NULL);
-			hStop = FindWindowEx(hWnd, hStop, L"BUTTON", NULL);
-			hStop = FindWindowEx(hWnd, hStop, L"BUTTON", NULL);
-			SendMessage(hWnd, WM_COMMAND, 0, (LPARAM)hStop);
+			hStop = FindWindowExW(hWnd, NULL, L"BUTTON", NULL);
+			hStop = FindWindowExW(hWnd, hStop, L"BUTTON", NULL);
+			hStop = FindWindowExW(hWnd, hStop, L"BUTTON", NULL);
+			SendMessageW(hWnd, WM_COMMAND, 0, (LPARAM)hStop);
 		}
 	}
 }

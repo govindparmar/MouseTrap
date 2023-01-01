@@ -18,11 +18,11 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
 	ATOM aFlag = 0x0000;
 	int i, n = 0;
 
-	hWnd = FindWindow(g_szClassName, NULL);
+	hWnd = FindWindowW(g_szClassName, NULL);
 	hHeap = GetProcessHeap();
 
 	// Attempt to open the MTP file
-	hFile = CreateFile(lpszFilename, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	hFile = CreateFileW(lpszFilename, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		DebugPrint(hWnd, L"Unable to read the MTP file.", 30);
@@ -30,7 +30,11 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
 	}
 
 	// Establish validity of the MTP file format
-	ReadFile(hFile, &mifh, sizeof(struct _MIFILEHDR), &dwRead, NULL);
+	if (!ReadFile(hFile, &mifh, sizeof(struct _MIFILEHDR), &dwRead, NULL))
+	{
+		DebugPrint(hWnd, L"Unable to read from the MTP file.", 34);
+		goto cleanup0;
+	}
 	if (mifh.magic == FOURCH('G', 'P', 'M', 'P') && mifh.version==1)
 	{
 		n = mifh.numMI;
@@ -43,11 +47,18 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
 
 	// Allocate memory for the list of mouse event structures
 	miList = (MOUSEINFO*)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, n*sizeof(struct _MOUSEINFO));
-
+	if (NULL == miList)
+	{
+		DebugPrint(hWnd, L"Fatal - insufficient memory on system.", 39);
+		ExitProcess(ERROR_OUTOFMEMORY);
+	}
 	for (i = 0; i < n; i++)
 	{
 		// Read the list struct by struct
-		ReadFile(hFile, &miList[i], sizeof(struct _MOUSEINFO), &dwRead, NULL);
+		if (!ReadFile(hFile, &miList[i], sizeof(struct _MOUSEINFO), &dwRead, NULL))
+		{
+			DebugPrint(hWnd, L"Unable to read from the MTP file.", 34);
+		}
 
 		// Wait for the number of milliseconds specified by this mouse event
 		Sleep(miList[i].waitms);

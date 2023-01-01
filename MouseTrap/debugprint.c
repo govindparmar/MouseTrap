@@ -16,9 +16,9 @@
 
 int DebugPrint(HWND hWnd, WCHAR *newMsg, int cchNewMsg)
 {
-	HWND hEdit = FindWindowEx(hWnd, NULL, L"EDIT", NULL);
-	int prevLen = GetWindowTextLength(hEdit);
-	SetWindowText(hEdit, newMsg);
+	HWND hEdit = FindWindowExW(hWnd, NULL, L"EDIT", NULL);
+	int prevLen = GetWindowTextLengthW(hEdit);
+	SetWindowTextW(hEdit, newMsg);
 	UpdateWindow(hEdit);
 	return (cchNewMsg - prevLen);
 }

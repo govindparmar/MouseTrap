@@ -10,27 +10,27 @@
 //
 // RETURNS:
 //  No return value, but the OPENFILENAME structure will be populated with appropriate values.
-VOID PopulateOFN(HWND hWnd, OPENFILENAME *ofn, WCHAR *szFileName, BOOL bOpenOrSave)
+VOID PopulateOFN(HWND hWnd, OPENFILENAME *pOFN, WCHAR *szFileName, BOOL bOpenOrSave)
 {
-	ZeroMemory(ofn, sizeof(OPENFILENAME));
-	ofn->lStructSize = sizeof(OPENFILENAME);
-	ofn->hwndOwner = hWnd;
-	ofn->lpstrFile = szFileName;
-	ofn->nMaxFile = MAX_PATH;
+	ZeroMemory(pOFN, sizeof(OPENFILENAME));
+	pOFN->lStructSize = sizeof(OPENFILENAME);
+	pOFN->hwndOwner = hWnd;
+	pOFN->lpstrFile = szFileName;
+	pOFN->nMaxFile = MAX_PATH;
 	if (bOpenOrSave == TRUE)
 	{
-		ofn->lpstrFilter = L"MouseTrap Playback Files (*.mtp)\0*.MTP\0All Files (*.*)\0*.*\0\0";
-		ofn->Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_ENABLEHOOK | OFN_HIDEREADONLY;
+		pOFN->lpstrFilter = L"MouseTrap Playback Files (*.mtp)\0*.MTP\0All Files (*.*)\0*.*\0\0";
+		pOFN->Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_ENABLEHOOK | OFN_HIDEREADONLY;
 
 	}
 	else
 	{
-		ofn->Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_ENABLEHOOK;
-		ofn->lpstrDefExt = L"mtp";
-		ofn->lpstrFilter = L"MouseTrap Playback Files (*.mtp)\0*.MTP\0\0";
+		pOFN->Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_ENABLEHOOK;
+		pOFN->lpstrDefExt = L"mtp";
+		pOFN->lpstrFilter = L"MouseTrap Playback Files (*.mtp)\0*.MTP\0\0";
 	}
-	ofn->nFilterIndex = 1;
-	ofn->lpstrFileTitle = NULL;
-	ofn->nMaxFileTitle = 0;
-	ofn->lpstrInitialDir = NULL;
+	pOFN->nFilterIndex = 1;
+	pOFN->lpstrFileTitle = NULL;
+	pOFN->nMaxFileTitle = 0;
+	pOFN->lpstrInitialDir = NULL;
 }

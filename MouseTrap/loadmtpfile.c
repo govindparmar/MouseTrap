@@ -12,7 +12,7 @@ MOUSEINFO *g_miFromFile = NULL;
 //  The number of mouse events saved into the structured file on successful execution, or -1 if an error occurs.
 int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 {
-	HWND dbgWnd = FindWindow(g_szClassName, NULL);
+	HWND dbgWnd = FindWindowW(g_szClassName, NULL);
 	HANDLE hInFile, hOutFile, hHeap;
 	DWORD hiLen, loLen, dwRead = 0, dwWritten = 0;
 	MIFILEHDR mifh = { 0 };
@@ -20,11 +20,11 @@ int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 	int n = 0, i;
 
 	// Step 1: Open up the temporary raw-data file
-	hInFile = CreateFile(inFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	hInFile = CreateFileW(inFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hInFile == INVALID_HANDLE_VALUE)
 	{
 		DWORD le = GetLastError();
-		StringCchPrintf(msg, 1000, L"Problem loading recorded mouse data into new file. See the Manual for more information.\r\n", le);
+		StringCchPrintfW(msg, 1000, L"Problem loading recorded mouse data into new file: %I32u.\r\n", le);
 		DebugPrint(dbgWnd, msg, wcslen(msg) + 1);
 		return -1;
 	}
@@ -35,7 +35,7 @@ int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 	// Fail on file size check is unlikely (since the CreateFile call requesting read access has succeeded at this point) but needs to be handled regardless.
 	if (loLen == INVALID_FILE_SIZE)
 	{
-		StringCchPrintf(msg, 1000, L"Problem loading recorded mouse data into new file. See the Manual for more information.\r\n", inFileName, outFileName);
+		StringCchCopyW(msg, 1000, L"Problem loading recorded mouse data into new file.\r\n");
 		DebugPrint(dbgWnd, msg, wcslen(msg) + 1);
 		CloseHandle(hInFile);
 		return -1;
@@ -43,7 +43,7 @@ int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 	// If the high order 32-bits of the file's size are not zero, the file is too large to process and almost certainly not a valid MouseTrap data file; 
 	if (hiLen > 0)
 	{
-		StringCchCopy(msg, 1000, L"Data is too large to process. See the Manual for more information.\r\n");
+		StringCchCopyW(msg, 1000, L"Data file is too large to process.\r\n");
 		DebugPrint(dbgWnd, msg, wcslen(msg) + 1);
 		CloseHandle(hInFile);
 		return -1;
@@ -55,12 +55,21 @@ int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 	// The number of events in the data file is obviously the size of the file divided by the size of a mouse event structure
 	n = loLen / sizeof(struct _MOUSEINFO);
 
-	StringCchPrintf(msg, 1000, L"Processed %d recorded mouse events from temporary file...\r\n", n);
+	StringCchPrintfW(msg, 1000, L"Processed %d recorded mouse events from temporary file...\r\n", n);
 	DebugPrint(dbgWnd, msg, wcslen(msg) + 1);
 
 	// Allocate memory and load it into the dynamic memory array
 	g_miFromFile = (MOUSEINFO*)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, n*sizeof(struct _MOUSEINFO));
-	ReadFile(hInFile, g_miFromFile, loLen, &dwRead, NULL);
+	if (NULL == g_miFromFile)
+	{
+		DebugPrint(dbgWnd, "Fatal - System is out of memory.", 33);
+		ExitProcess(ERROR_OUTOFMEMORY);
+	}
+	if (!ReadFile(hInFile, g_miFromFile, loLen, &dwRead, NULL))
+	{
+		DebugPrint(dbgWnd, L"Could not read MTP file data.", 30);
+		return -1;
+	}
 
 	// No longer need the file to be open at this point.
 	CloseHandle(hInFile);
@@ -71,7 +80,7 @@ int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 	mifh.numMI = n;
 	
 	// Create the output file and report any errors to the user.
-	hOutFile = CreateFile(outFileName, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	hOutFile = CreateFileW(outFileName, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hOutFile == INVALID_HANDLE_VALUE)
 	{
 		WCHAR *msg = L"Reading mouse click data succeeded, but creating the file to save it into failed.";
@@ -91,7 +100,7 @@ int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 	}
 
 	// Report save file with # of events to user
-	StringCchPrintf(msg, 1000, L"Saved new file \'%s\' with %d recorded mouse activities.\r\n", outFileName, n);
+	StringCchPrintfW(msg, 1000, L"Saved new file \'%s\' with %d recorded mouse activities.\r\n", outFileName, n);
 	DebugPrint(dbgWnd, msg, wcslen(msg) + 1);
 
 	// Clean up and exit

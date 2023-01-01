@@ -23,9 +23,9 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 
 	
 	// Get the HWNDs of the three buttons
-	hRecord = FindWindowEx(hWnd, NULL, L"BUTTON", NULL);
-	hPlay = FindWindowEx(hWnd, hRecord, L"BUTTON", NULL);
-	hStop = FindWindowEx(hWnd, hPlay, L"BUTTON", NULL);
+	hRecord = FindWindowExW(hWnd, NULL, L"BUTTON", NULL);
+	hPlay = FindWindowExW(hWnd, hRecord, L"BUTTON", NULL);
+	hStop = FindWindowExW(hWnd, hPlay, L"BUTTON", NULL);
 
 	
 	// Handle the "Record" button event
@@ -34,7 +34,7 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 		HOOKPROC hookProc;
 
 		// Try to delete any previous temporary click data file before beginning a new recording.
-		if (DeleteFile(g_szClickData) == FALSE)
+		if (DeleteFileW(g_szClickData) == FALSE)
 		{
 			WCHAR msg[2000] = L"";
 			DWORD le = GetLastError();
@@ -42,12 +42,12 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 			// Nothing to delete
 			if (le == ERROR_FILE_NOT_FOUND)
 			{
-				StringCchCopy(msg, 1000, L"No previous click data to delete.");
+				StringCchCopyW(msg, 1000, L"No previous click data to delete.");
 			}
 			// Other error
 			else
 			{
-				StringCchPrintf(msg, 2000, L"Deleting previous click data failed.", le, le);
+				StringCchPrintfW(msg, 2000, L"Deleting previous click data failed: %I32u", le);
 			}
 			DebugPrint(hWnd, msg, wcslen(msg) + 1);
 		}
@@ -59,7 +59,12 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 		}
 
 		// Load up the DLL file MouseHook.dll and get the address of the LowLevelMouseProc hook function
-		hInstDLL = LoadLibrary(L"MouseHook.dll");
+		hInstDLL = LoadLibraryW(L"MouseHook.dll");
+		if (NULL == hInstDLL)
+		{
+			DebugPrint(hWnd, L"Fatal - MouseHook.dll could not be loaded.", 43);
+			ExitProcess(ERROR_DLL_NOT_FOUND);
+		}
 		hookProc = (HOOKPROC)GetProcAddress(hInstDLL, "LowLevelMouseProc");
 
 		// Set the "currently recording" flag to true (necessary for the Ctrl+Alt+T hotkey to function properly)
@@ -71,7 +76,7 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 		DebugPrint(hWnd, L"Press Ctrl+Alt+T or use the Stop button to stop recording.", 62);
 
 		// Install the low-level mouse hook procedure
-		hHook = SetWindowsHookEx(WH_MOUSE_LL, hookProc, hInstDLL, 0);
+		hHook = SetWindowsHookExW(WH_MOUSE_LL, hookProc, hInstDLL, 0);
 
 		// Only the stop button should be enabled during recording
 		EnableWindow(hPlay, FALSE);
@@ -115,6 +120,11 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 			{
 				// Launch the mouse movement thread and wait for it to complete
 				g_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&ThreadProc, (LPVOID)openFile, 0, NULL);
+				if (NULL == g_hThread)
+				{
+					DebugPrint(hWnd, L"Failed to start mouse movement monitor.", 40);
+					ExitProcess(GetLastError());
+				}
 				WaitForSingleObject(g_hThread, INFINITE);
 
 				// If the user has pressed F8, set the loop condition to 0 to break out.
@@ -143,7 +153,7 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 		// Uninstall the low-level mouse hook and post WM_NULL to all the windows on the system to force uninstallation of the DLL
 		UnhookWindowsHookEx(hHook);
 		Sleep(10);
-		PostMessage(HWND_BROADCAST, WM_NULL, 0, 0);
+		PostMessageW(HWND_BROADCAST, WM_NULL, 0, 0);
 
 		// Reset the "currently recording" flag to false (hotkey handler will no longer open up the "save file" dialog)
 		g_bCurrentlyRecording = FALSE;
@@ -152,7 +162,7 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 		PopulateOFN(hWnd, &ofn, saveFile, FALSE);
 
 		// If the user did not cancel on the "save" dialog, write the data out to the filename they specified.
-		if (GetSaveFileName(&ofn))
+		if (GetSaveFileNameW(&ofn))
 		{
 			LoadMIStructsFromFile(g_szClickData, saveFile);
 		}
@@ -173,23 +183,23 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 
 		// File->Exit: post WM_CLOSE to the window
 		case ID_FILE_EXIT:
-			SendMessage(hWnd, WM_CLOSE, 0, 0L);
+			SendMessageW(hWnd, WM_CLOSE, 0, 0L);
 			break;
 
 		// Help->Manual: NYI
 		case ID_HELP_MANUAL:
-			MessageBox(0, L"The help manual is coming soon! Check the project\'s GitHub page for updates!", L"Information", MB_OK | MB_ICONINFORMATION);
+			MessageBoxW(0, L"The help manual is coming soon! Check the project\'s GitHub page for updates!", L"Information", MB_OK | MB_ICONINFORMATION);
 			break;
 
 		// Help->About: Display the "About" dialog box
 		case ID_HELP_ABOUT:
-			DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, DialogProc);
+			DialogBoxW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(IDD_ABOUTBOX), hWnd, DialogProc);
 			break;
 
 		// Help->Donate: Open a browser link to the donation page
 		case ID_HELP_DONATE:
 
-			ShellExecute(NULL, L"open", L"http://paypal.me/govind", NULL, NULL, SW_SHOW);
+			ShellExecuteW(NULL, L"open", L"http://paypal.me/govind", NULL, NULL, SW_SHOW);
 			break;
 
 		// Settings->Continuous Playback: Toggle the playback setting from single to continuous
@@ -221,7 +231,7 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 
 			// Populate the "OPENFILENAME" struct with appropriate values for opening an MTP file, and allow the user to open a file.
 			PopulateOFN(hWnd, &ofn, openFile, TRUE);
-			bOpened = GetOpenFileName(&ofn);
+			bOpened = GetOpenFileNameW(&ofn);
 
 			// If they did open a file, enable the Play button (which will then play that file).
 			if (bOpened)

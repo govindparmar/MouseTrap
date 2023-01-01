@@ -6,5 +6,5 @@
 //  hWnd is the window that receives the message.
 VOID WINAPI OnDestroy(HWND hWnd)
 {
-	PostQuitMessage(0);
+	PostQuitMessage(ERROR_SUCCESS);
 }

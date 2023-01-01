@@ -1,10 +1,22 @@
 #pragma once
 #include <Windows.h>
 #include <WindowsX.h>
+#include <CommCtrl.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <strsafe.h>
 #include "resource.h"
+
+#if defined _M_IX86
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#elif defined _M_IA64
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='ia64' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#elif defined _M_X64
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#else
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#endif
+
 
 // Coerces four 8-bit bytes into a 32-bit doubleword (little-endian)
 #define FOURCH(c0, c1, c2, c3) \
@@ -25,7 +37,7 @@ typedef struct _MIFILEHDR
 {
 	unsigned __int32 magic; // Magic number; identifies as valid file (0x'G''P''M''P')
 	unsigned __int32 numMI; // Number of MOUSEINFO structs in the file
-	unsigned __int16 version; // 0x00000001 for this version
+	unsigned __int16 version; // 0x0001 for this version
 } MIFILEHDR;
 
 // Information about a mouse click event
@@ -50,7 +62,7 @@ extern BOOL g_bHotkeyEnabled; // Flag indicating whether the Ctrl+Alt+T hotkey w
 extern BOOL g_bCurrentlyRecording; // Flag indicating whether or not a recording is currently in progress
 
 // Methods:
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd);
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd);
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 ATOM RegisterWCEX(HINSTANCE hInstance);
 BOOL CALLBACK EnumChildProc(HWND hWnd, LPARAM lParam);
