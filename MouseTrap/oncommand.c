@@ -49,20 +49,20 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 			{
 				StringCchPrintfW(msg, 2000, L"Deleting previous click data failed: %I32u", le);
 			}
-			DebugPrint(hWnd, msg, wcslen(msg) + 1);
+			TooltipPrint(hWnd, msg, wcslen(msg) + 1);
 		}
 		// Success: there was a click data file, and it was deleted without any problem.
 		else
 		{
 			WCHAR *msg = L"Deleting previous click data succeeded.";
-			DebugPrint(hWnd, msg, wcslen(msg) + 1);
+			TooltipPrint(hWnd, msg, wcslen(msg) + 1);
 		}
 
 		// Load up the DLL file MouseHook.dll and get the address of the LowLevelMouseProc hook function
 		hInstDLL = LoadLibraryW(L"MouseHook.dll");
 		if (NULL == hInstDLL)
 		{
-			DebugPrint(hWnd, L"Fatal - MouseHook.dll could not be loaded.", 43);
+			TooltipPrint(hWnd, L"Fatal - MouseHook.dll could not be loaded.", 43);
 			ExitProcess(ERROR_DLL_NOT_FOUND);
 		}
 		hookProc = (HOOKPROC)GetProcAddress(hInstDLL, "LowLevelMouseProc");
@@ -73,7 +73,7 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 		// Update the debug output to:
 		// 1. Inform the user that recording has begun
 		// 2. Inform the user of how to stop recording
-		DebugPrint(hWnd, L"Press Ctrl+Alt+T or use the Stop button to stop recording.", 62);
+		TooltipPrint(hWnd, L"Press Ctrl+Alt+T or use the Stop button to stop recording.", 62);
 
 		// Install the low-level mouse hook procedure
 		hHook = SetWindowsHookExW(WH_MOUSE_LL, hookProc, hInstDLL, 0);
@@ -91,7 +91,7 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 		if (wcslen(openFile) == 0)
 		{
 			WCHAR *msg = L"Please open an MTP file first.";
-			DebugPrint(hWnd, msg, wcslen(msg) + 1);
+			TooltipPrint(hWnd, msg, wcslen(msg) + 1);
 		}
 		else
 		{
@@ -113,7 +113,7 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 			// Update the debug window to:
 			// 1. Inform the user that playback has begun
 			// 2. Inform the user of how to stop playback 
-			DebugPrint(hWnd, L"Press F8 to stop playback.", 28);
+			TooltipPrint(hWnd, L"Press F8 to stop playback.", 28);
 		
 			// If the "continuous playback" setting is not applied, loopVal will be 0 and the do-while loop will only execute once. Otherwise, loopVal is 1 and will loop until VK_F8 is pressed.
 			do
@@ -122,7 +122,7 @@ VOID WINAPI OnCommand(HWND hWnd, int nID, HWND hwSource, UINT uNotify)
 				g_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&ThreadProc, (LPVOID)openFile, 0, NULL);
 				if (NULL == g_hThread)
 				{
-					DebugPrint(hWnd, L"Failed to start mouse movement monitor.", 40);
+					TooltipPrint(hWnd, L"Failed to start mouse movement monitor.", 40);
 					ExitProcess(GetLastError());
 				}
 				WaitForSingleObject(g_hThread, INFINITE);

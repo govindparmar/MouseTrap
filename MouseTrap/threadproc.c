@@ -25,14 +25,14 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
 	hFile = CreateFileW(lpszFilename, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
-		DebugPrint(hWnd, L"Unable to read the MTP file.", 30);
+		TooltipPrint(hWnd, L"Unable to read the MTP file.", 30);
 		goto cleanup0;
 	}
 
 	// Establish validity of the MTP file format
 	if (!ReadFile(hFile, &mifh, sizeof(struct _MIFILEHDR), &dwRead, NULL))
 	{
-		DebugPrint(hWnd, L"Unable to read from the MTP file.", 34);
+		TooltipPrint(hWnd, L"Unable to read from the MTP file.", 34);
 		goto cleanup0;
 	}
 	if (mifh.magic == FOURCH('G', 'P', 'M', 'P') && mifh.version==1)
@@ -41,7 +41,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
 	}
 	else
 	{
-		DebugPrint(hWnd, L"This is not a valid MTP file.", 31);
+		TooltipPrint(hWnd, L"This is not a valid MTP file.", 31);
 		goto cleanup0;
 	}
 
@@ -49,7 +49,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
 	miList = (MOUSEINFO*)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, n*sizeof(struct _MOUSEINFO));
 	if (NULL == miList)
 	{
-		DebugPrint(hWnd, L"Fatal - insufficient memory on system.", 39);
+		TooltipPrint(hWnd, L"Fatal - insufficient memory on system.", 39);
 		ExitProcess(ERROR_OUTOFMEMORY);
 	}
 	for (i = 0; i < n; i++)
@@ -57,7 +57,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
 		// Read the list struct by struct
 		if (!ReadFile(hFile, &miList[i], sizeof(struct _MOUSEINFO), &dwRead, NULL))
 		{
-			DebugPrint(hWnd, L"Unable to read from the MTP file.", 34);
+			TooltipPrint(hWnd, L"Unable to read from the MTP file.", 34);
 		}
 
 		// Wait for the number of milliseconds specified by this mouse event

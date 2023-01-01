@@ -62,11 +62,11 @@ extern BOOL g_bHotkeyEnabled; // Flag indicating whether the Ctrl+Alt+T hotkey w
 extern BOOL g_bCurrentlyRecording; // Flag indicating whether or not a recording is currently in progress
 
 // Methods:
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd);
+INT APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ INT nShowCmd);
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 ATOM RegisterWCEX(HINSTANCE hInstance);
 BOOL CALLBACK EnumChildProc(HWND hWnd, LPARAM lParam);
-int DebugPrint(HWND hWnd, WCHAR *newMsg, int cchNewMsg);
+int TooltipPrint(HWND hWnd, WCHAR *newMsg, int cchNewMsg);
 int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName);
 BOOL CALLBACK DialogProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 DWORD WINAPI ThreadProc(LPVOID lpParam);

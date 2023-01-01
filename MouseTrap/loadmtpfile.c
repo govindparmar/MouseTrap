@@ -25,7 +25,7 @@ int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 	{
 		DWORD le = GetLastError();
 		StringCchPrintfW(msg, 1000, L"Problem loading recorded mouse data into new file: %I32u.\r\n", le);
-		DebugPrint(dbgWnd, msg, wcslen(msg) + 1);
+		TooltipPrint(dbgWnd, msg, wcslen(msg) + 1);
 		return -1;
 	}
 
@@ -36,7 +36,7 @@ int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 	if (loLen == INVALID_FILE_SIZE)
 	{
 		StringCchCopyW(msg, 1000, L"Problem loading recorded mouse data into new file.\r\n");
-		DebugPrint(dbgWnd, msg, wcslen(msg) + 1);
+		TooltipPrint(dbgWnd, msg, wcslen(msg) + 1);
 		CloseHandle(hInFile);
 		return -1;
 	}
@@ -44,7 +44,7 @@ int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 	if (hiLen > 0)
 	{
 		StringCchCopyW(msg, 1000, L"Data file is too large to process.\r\n");
-		DebugPrint(dbgWnd, msg, wcslen(msg) + 1);
+		TooltipPrint(dbgWnd, msg, wcslen(msg) + 1);
 		CloseHandle(hInFile);
 		return -1;
 	}
@@ -56,18 +56,18 @@ int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 	n = loLen / sizeof(struct _MOUSEINFO);
 
 	StringCchPrintfW(msg, 1000, L"Processed %d recorded mouse events from temporary file...\r\n", n);
-	DebugPrint(dbgWnd, msg, wcslen(msg) + 1);
+	TooltipPrint(dbgWnd, msg, wcslen(msg) + 1);
 
 	// Allocate memory and load it into the dynamic memory array
 	g_miFromFile = (MOUSEINFO*)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, n*sizeof(struct _MOUSEINFO));
 	if (NULL == g_miFromFile)
 	{
-		DebugPrint(dbgWnd, "Fatal - System is out of memory.", 33);
+		TooltipPrint(dbgWnd, L"Fatal - System is out of memory.", 33);
 		ExitProcess(ERROR_OUTOFMEMORY);
 	}
 	if (!ReadFile(hInFile, g_miFromFile, loLen, &dwRead, NULL))
 	{
-		DebugPrint(dbgWnd, L"Could not read MTP file data.", 30);
+		TooltipPrint(dbgWnd, L"Could not read MTP file data.", 30);
 		return -1;
 	}
 
@@ -84,7 +84,7 @@ int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 	if (hOutFile == INVALID_HANDLE_VALUE)
 	{
 		WCHAR *msg = L"Reading mouse click data succeeded, but creating the file to save it into failed.";
-		DebugPrint(dbgWnd, msg, wcslen(msg) + 1);
+		TooltipPrint(dbgWnd, msg, wcslen(msg) + 1);
 		HeapFree(hHeap, 0, g_miFromFile);
 		return -1;
 	}
@@ -101,7 +101,7 @@ int LoadMIStructsFromFile(WCHAR *inFileName, WCHAR *outFileName)
 
 	// Report save file with # of events to user
 	StringCchPrintfW(msg, 1000, L"Saved new file \'%s\' with %d recorded mouse activities.\r\n", outFileName, n);
-	DebugPrint(dbgWnd, msg, wcslen(msg) + 1);
+	TooltipPrint(dbgWnd, msg, wcslen(msg) + 1);
 
 	// Clean up and exit
 	CloseHandle(hOutFile);

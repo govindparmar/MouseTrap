@@ -14,7 +14,7 @@
 // cchNewMsg and the return value presently are not used by the program in any way, but may be as the program is updated.
 // Future versions of the program will probably include options for appending to the debug text instead of replacing it.
 
-int DebugPrint(HWND hWnd, WCHAR *newMsg, int cchNewMsg)
+int TooltipPrint(HWND hWnd, WCHAR *newMsg, int cchNewMsg)
 {
 	HWND hEdit = FindWindowExW(hWnd, NULL, L"EDIT", NULL);
 	int prevLen = GetWindowTextLengthW(hEdit);
